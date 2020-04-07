@@ -34,14 +34,12 @@
                 <td>时间</td>
                 <td>天数</td>
                 <td>事由</td>
-<!--                <td>下一节点</td>-->
                 <td>申请状态</td>
             </tr>
             <tr ng-repeat="vac in vacList">
                 <td>{{vac.applyTime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
                 <td>{{vac.days}}</td>
                 <td>{{vac.reason}}</td>
-<!--                <td>{{vac.nextStep}}</td>-->
                 <td>{{vac.applyStatus}}</td>
             </tr>
         </table>

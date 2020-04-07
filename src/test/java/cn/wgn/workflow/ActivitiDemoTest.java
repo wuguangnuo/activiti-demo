@@ -16,22 +16,21 @@ import javax.annotation.Resource;
 public class ActivitiDemoTest {
 
     @Resource
-    private ProcessEngine engine;
+    private ProcessEngine processEngine;
 
     @Test
     public void test() {
-//        ProcessEngine engine = ProcessEngines.getDefaultProcessEngine();
-        IdentityService is = engine.getIdentityService();
+        IdentityService is = processEngine.getIdentityService();
         // 添加用户组
         Group empGroup = saveGroup(is, "empGroup", "员工组");
         Group manageGroup = saveGroup(is, "manageGroup", "经理组");
         Group dirGroup = saveGroup(is, "dirGroup", "总监组");
         // 添加用户
-        User empA = saveUser(is, "empa"); // 员工a
-        User empB = saveUser(is, "empb"); // 员工b
-        User managea = saveUser(is, "managea"); // 经理a
-        User manageb = saveUser(is, "manageb"); // 经理b
-        User dira = saveUser(is, "dira"); // 总监a
+        User empA = saveUser(is, "empa", "123456"); // 员工a
+        User empB = saveUser(is, "empb", "123456"); // 员工b
+        User managea = saveUser(is, "managea", "123456"); // 经理a
+        User manageb = saveUser(is, "manageb", "123456"); // 经理b
+        User dira = saveUser(is, "dira", "123456"); // 总监a
         // 绑定关系
         saveRel(is, empA, empGroup);
         saveRel(is, empB, empGroup);
@@ -40,9 +39,9 @@ public class ActivitiDemoTest {
         saveRel(is, dira, dirGroup);
     }
 
-    User saveUser(IdentityService is, String id) {
+    User saveUser(IdentityService is, String id, String pw) {
         User u = is.newUser(id);
-        u.setPassword("123456");
+        u.setPassword(pw);
         is.saveUser(u);
         return u;
     }

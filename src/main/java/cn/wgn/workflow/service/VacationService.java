@@ -26,7 +26,7 @@ public class VacationService {
     @Resource
     private HistoryService historyService;
     // 流程名称
-    private static String PROCESS_DEFINE_KEY = "vacationProcess";
+    private static String PROCESS_DEFINE_KEY = "workflow2";
 
     /**
      * 发起流程
@@ -41,7 +41,9 @@ public class VacationService {
         // 开始流程
         ProcessInstance vacationInstance = runtimeService.startProcessInstanceByKey(PROCESS_DEFINE_KEY);
         // 查询当前任务
-        Task currentTask = taskService.createTaskQuery().processInstanceId(vacationInstance.getId()).singleResult();
+        Task currentTask = taskService.createTaskQuery()
+                .processInstanceId(vacationInstance.getId())
+                .singleResult();
         // 申明任务
         taskService.claim(currentTask.getId(), userName);
 
@@ -62,7 +64,9 @@ public class VacationService {
      * @return
      */
     public Object myVac(String userName) {
-        List<ProcessInstance> instanceList = runtimeService.createProcessInstanceQuery().startedBy(userName).list();
+        List<ProcessInstance> instanceList = runtimeService.createProcessInstanceQuery()
+                .startedBy(userName)
+                .list();
         List<Vacation> vacList = new ArrayList<>();
         for (ProcessInstance instance : instanceList) {
             Vacation vac = getVac(instance);
@@ -80,7 +84,9 @@ public class VacationService {
      */
     public Object myVacRecord(String userName) {
         List<HistoricProcessInstance> hisProInstance = historyService.createHistoricProcessInstanceQuery()
-                .processDefinitionKey(PROCESS_DEFINE_KEY).startedBy(userName).finished()
+                .processDefinitionKey(PROCESS_DEFINE_KEY)
+                .startedBy(userName)
+                .finished()
                 .orderByProcessInstanceEndTime().desc().list();
 
         List<Vacation> vacList = new ArrayList<>();
@@ -106,6 +112,7 @@ public class VacationService {
     private Vacation getVac(ProcessInstance instance) {
         Integer days = runtimeService.getVariable(instance.getId(), "days", Integer.class);
         String reason = runtimeService.getVariable(instance.getId(), "reason", String.class);
+        String applyUser = runtimeService.getVariable(instance.getId(), "applyUser", String.class);
         Vacation vac = new Vacation();
         vac.setApplyUser(instance.getStartUserId());
         vac.setDays(days);
@@ -142,7 +149,9 @@ public class VacationService {
      * @return
      */
     public Object myAudit(String userName) {
-        List<Task> taskList = taskService.createTaskQuery().taskCandidateUser(userName)
+        List<Task> taskList = taskService.createTaskQuery()
+                .processDefinitionKey(PROCESS_DEFINE_KEY)
+                .taskCandidateUser(userName)
                 .orderByTaskCreateTime().desc().list();
 
         List<VacTask> vacTaskList = new ArrayList<>();
@@ -152,7 +161,9 @@ public class VacationService {
             vacTask.setName(task.getName());
             vacTask.setCreateTime(task.getCreateTime());
             String instanceId = task.getProcessInstanceId();
-            ProcessInstance instance = runtimeService.createProcessInstanceQuery().processInstanceId(instanceId).singleResult();
+            ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(instanceId)
+                    .singleResult();
             Vacation vac = getVac(instance);
             vacTask.setVac(vac);
             vacTaskList.add(vacTask);
@@ -168,18 +179,17 @@ public class VacationService {
      */
     public Object myAuditRecord(String userName) {
         List<HistoricProcessInstance> hisProInstance = historyService.createHistoricProcessInstanceQuery()
-                .processDefinitionKey(PROCESS_DEFINE_KEY).involvedUser(userName).finished()
+                .processDefinitionKey(PROCESS_DEFINE_KEY)
+                .involvedUser(userName)
+                .finished()
                 .orderByProcessInstanceEndTime().desc().list();
 
-        List<String> auditTaskNameList = new ArrayList<>();
-        auditTaskNameList.add("经理审批");
-        auditTaskNameList.add("总监审批");
         List<Vacation> vacList = new ArrayList<>();
         for (HistoricProcessInstance hisInstance : hisProInstance) {
             List<HistoricTaskInstance> hisTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
-                    .processInstanceId(hisInstance.getId()).processFinished()
+                    .processInstanceId(hisInstance.getId())
+                    .processFinished()
                     .taskAssignee(userName)
-                    .taskNameIn(auditTaskNameList)
                     .orderByHistoricTaskInstanceEndTime().desc().list();
             boolean isMyAudit = false;
             for (HistoricTaskInstance taskInstance : hisTaskInstanceList) {
@@ -188,6 +198,7 @@ public class VacationService {
                 }
             }
             if (!isMyAudit) {
+                System.out.println("!!!!!!!!!!!!!!!!!!  错误，isMyAudit = false");
                 continue;
             }
             Vacation vacation = new Vacation();

@@ -25,11 +25,6 @@ public class Vacation {
      */
     private String applyStatus;
     /**
-     * 下一节点名称
-     */
-//    private String nextStep;
-
-    /**
      * 审核人
      */
     private String auditor;
@@ -81,14 +76,6 @@ public class Vacation {
     public void setApplyStatus(String applyStatus) {
         this.applyStatus = applyStatus;
     }
-
-//    public String getNextStep() {
-//        return nextStep;
-//    }
-//
-//    public void setNextStep(String nextStep) {
-//        this.nextStep = nextStep;
-//    }
 
     public String getAuditor() {
         return auditor;
